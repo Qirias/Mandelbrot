@@ -15,10 +15,11 @@ void main()
 #version 330 core
 
 in vec2 TexCoords;
+out vec4 color;
 uniform sampler2D mandelbrotTexture;
 
 void main()
 {
     vec3 col     = texture(mandelbrotTexture, TexCoords).rgb;
-    gl_FragColor = vec4(col, 1.0);
+    color = vec4(col, 1.0);
 }

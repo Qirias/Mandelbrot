@@ -9,9 +9,12 @@
 
 const unsigned int SCREEN_WIDTH  = 1024;
 const unsigned int SCREEN_HEIGHT = 1024;
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, float deltaTime);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 float cx = -0.5f, cy, cz = 1.0f, ci = 100.0f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 int main(void)
 {
@@ -30,6 +33,7 @@ int main(void)
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetKeyCallback(window, key_callback);
 
     // clang-format off
     float quadVertices[] = {
@@ -104,6 +108,12 @@ int main(void)
 
     // Game loop
     while (!glfwWindowShouldClose(window)) {
+
+        float currentFrame = glfwGetTime();
+        deltaTime          = currentFrame - lastFrame;
+        lastFrame          = currentFrame;
+        processInput(window, deltaTime);
+
         useShader(mandelbrot);
 
         setFloat(mandelbrot, "c_x", cx);
@@ -115,11 +125,6 @@ int main(void)
         glDispatchCompute(SCREEN_WIDTH / 32, SCREEN_HEIGHT / 32, 1);
 
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-        processInput(window);
-        std::cout << "CX:\t" << cx << std::endl;
-        std::cout << "CY:\t" << cy << std::endl;
-
         glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         useShader(quad);
@@ -148,7 +153,7 @@ int main(void)
     return 0;
 }
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, float dT)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) // Window close
         glfwSetWindowShouldClose(window, true);
@@ -158,20 +163,31 @@ void processInput(GLFWwindow *window)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        cx -= 0.1 * cz;
+        cx -= 0.5 * dT * cz;
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        cx += 0.1 * cz;
+        cx += 0.5 * dT * cz;
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        cy += 0.1 * cz;
+        cy += 0.5 * dT * cz;
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        cy -= 0.1 * cz;
+        cy -= 0.5 * dT * cz;
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        cz -= 0.02 * cz;
+        cz -= 0.4 * dT * cz;
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        cz += 0.04 * cz;
-    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+        cz += 0.8 * dT * cz;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_I && action == GLFW_PRESS)
+    {
         ci += 10;
-    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+        std::cout << "iterations:\t" << ci <<std::endl;
+    }
+
+    if (key == GLFW_KEY_U && action == GLFW_PRESS)
+    {
         ci -= 10;
+        std::cout << "iterations:\t" << ci <<std::endl;
+    }
 }
 // g++ main.cpp -lGL -lglfw && ./a.out
