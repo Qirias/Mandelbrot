@@ -15,6 +15,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 float cx = -0.5f, cy, cz = 1.0f, ci = 100.0f;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+bool showQuad = true;
 
 int main(void)
 {
@@ -157,10 +158,6 @@ void processInput(GLFWwindow *window, float dT)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) // Window close
         glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) // Lines of Triangles
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         cx -= 0.5 * dT * cz;
@@ -188,6 +185,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     {
         ci -= 10;
         std::cout << "iterations:\t" << ci <<std::endl;
+    }
+
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+    {
+        if (showQuad)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        showQuad = !showQuad;
     }
 }
 // g++ main.cpp -lGL -lglfw && ./a.out
