@@ -28,6 +28,6 @@ sudo pacman -S glfw-x11
 **If you wanna know how this works check Iñigo's Quilez paper** [Rendering Worlds with Two Triangles](https://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf)
 
 # Showcase
-![Screenshot_2020-07-21_17-17-05](https://user-images.githubusercontent.com/49881189/88053554-a72af580-cb64-11ea-9e18-f7d7ce5c6277.png)
-![Screenshot_2020-07-21_17-18-02](https://user-images.githubusercontent.com/49881189/88053598-b742d500-cb64-11ea-8e69-376e46ab5aee.png)
-![Peek 2020-07-21 17-14](https://user-images.githubusercontent.com/49881189/88053623-c3c72d80-cb64-11ea-8b20-c7eb58fbd7bf.gif)
+![Screenshot from 2022-08-10 15-56-24](https://user-images.githubusercontent.com/49881189/183907311-b5b01d25-97e0-4d12-883c-b113be2c7b15.png)
+![Screenshot from 2022-08-10 15-54-56](https://user-images.githubusercontent.com/49881189/183907395-33720f9b-d69c-4a80-88a7-7742dc35f078.png)
+![gif](mandelbrot.gif)
