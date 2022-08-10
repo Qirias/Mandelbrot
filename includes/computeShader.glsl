@@ -6,11 +6,12 @@ layout(local_size_x = 32, local_size_y = 32) in;
 layout(rgba32f, binding = 0) uniform image2D img_output;
 
 uniform float c_x, c_y, c_z, c_i;
+double zreal = 0.0, zimaginary = 0.0;
 
 // clang-format off
 const vec3 color_map[] = {
     vec3(0.0, 0.0, 0.0),
-    vec3(0.26, 0.18, 0.06),
+    vec3(0.23, 0.11, 0.05),
     vec3(0.1,  0.03, 0.1), 
     vec3(0.04, 0.0,  0.18),
     vec3(0.02, 0.02, 0.29),
@@ -29,21 +30,27 @@ const vec3 color_map[] = {
 };
 // clang-format on
 
-int Mandelbrot(double zreal, double zimaginary, double creal, double cimaginary, int maxIt)
+vec3 getColor(double col)
 {
-    int it = 0;
-    while (it < maxIt && zreal * zreal + zimaginary * zimaginary < 4.0) {
-        double xtemp = zreal * zreal - zimaginary * zimaginary + creal;
-        zimaginary   = 2.0lf * zreal * zimaginary + cimaginary;
-        zreal        = xtemp;
-        it           = it + 1;
-    }
-    return it;
+    double r, g, b;
+
+    int clr1 = int(col);
+    double t2 = col - clr1;
+    double t1 = 1 - t2;
+    clr1 = clr1 % 17;
+    int clr2 = (clr1 + 1) % 17;
+
+    r = (color_map[clr1].x * t1 + color_map[clr2].x * t2);
+    g = (color_map[clr1].y * t1 + color_map[clr2].y * t2);
+    b = (color_map[clr1].z * t1 + color_map[clr2].z * t2);
+
+    return vec3(r, g, b);
 }
 
 void main()
 {
     vec4 pixel;
+    
     // Compute global x, y coordinates utilizing local group ID
     const ivec2 tile_xy      = ivec2(gl_WorkGroupID);
     const ivec2 thread_xy    = ivec2(gl_LocalInvocationID);
@@ -55,10 +62,17 @@ void main()
     double x = pixel_coords.x / 1024.0lf * c_z + c_x;
     double y = pixel_coords.y / 1024.0lf * c_z + c_y;
 
-    int n = Mandelbrot(0.0lf, 0.0lf, x, y, maxIt);
+    int it = 0;
+    while (it < maxIt && zreal * zreal + zimaginary * zimaginary < 4.0) {
+        double xtemp = zreal * zreal - zimaginary * zimaginary + x;
+        zimaginary   = 2.0lf * zreal * zimaginary + y;
+        zreal        = xtemp;
+        it           = it + 1;
+    }
 
-    int row_index = n % 17;
-    pixel         = vec4((n == maxIt ? vec3(0.0) : color_map[ row_index ]), 1.0);
+    double color = it + 1 - (log(log(float(zreal) * float(zreal) + float(zimaginary) * float(zimaginary))) / log(2));
 
-    imageStore(img_output, pixel_coords, pixel);
+    vec3 col = getColor(color / maxIt * 17);
+
+    imageStore(img_output, pixel_coords, vec4(col, 1.0));
 }
